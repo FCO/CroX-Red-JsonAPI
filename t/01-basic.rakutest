@@ -1,0 +1,6 @@
+use Test;
+use CroX::Red::JsonAPI;
+
+pass "replace me";
+
+done-testing;

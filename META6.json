@@ -1,0 +1,23 @@
+{
+  "auth" : "cpan:FCO",
+  "authors" : [
+    "Fernando Corr\u00eaa de Oliveira"
+  ],
+  "build-depends" : [ ],
+  "depends" : [ ],
+  "description" : "blah blah blah",
+  "license" : "Artistic-2.0",
+  "name" : "CroX::Red::JsonAPI",
+  "perl" : "6.d",
+  "provides" : {
+    "CroX::Red::JsonAPI" : "lib/CroX/Red/JsonAPI.rakumod",
+    "CroX::Red::JsonAPI::Data" : "lib/CroX/Red/JsonAPI/Data.rakumod",
+    "Cro::HTTP::BodySerializer::JsonAPI" : "lib/Cro/HTTP/BodySerializer/JsonAPI.rakumod",
+    "Cro::HTTP::BodyParser::JsonAPI" : "lib/Cro/HTTP/BodyParser/JsonAPI.rakumod"
+  },
+  "resources" : [ ],
+  "source-url" : "",
+  "tags" : [ ],
+  "test-depends" : [ ],
+  "version" : "0.0.1"
+}
