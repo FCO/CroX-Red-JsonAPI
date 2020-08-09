@@ -1,6 +1,6 @@
 use CroX::Red::JsonAPI::Data;
 
-unit class Cro::HTTP::BodyParser::JSON does Cro::BodyParser;
+unit class CroX::Red::JsonAPI::BodyParser does Cro::BodyParser;
 
 method is-applicable(Cro::HTTP::Message $message --> Bool) {
     with $message.content-type {

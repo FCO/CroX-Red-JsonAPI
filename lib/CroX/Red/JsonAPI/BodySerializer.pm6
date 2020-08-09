@@ -4,13 +4,13 @@ use Cro::HTTP::Router;
 use Red::Model;
 use Red::ResultSeq;
 
-unit class Cro::HTTP::BodySerializer::JsonAPI does Cro::HTTP::BodySerializer;
+unit class CroX::Red::JsonAPI::BodySerializer does Cro::HTTP::BodySerializer;
 
 has Str $.base-url = "";
 
 submethod TWEAK(|) { $!base-url .= subst: /"/"$/, "" }
 
-method resultseq-to-positional(Red::ResultSeq:D $seq, Bool :$root --> Positional) {
+method resultseq-to-positional(Red::ResultSeq:D $seq, Bool :$root, :%inc --> Positional) {
 	$seq.Seq.map({ self.model-to-resource: $_, :$root }).list
 }
 
@@ -28,7 +28,7 @@ method relationships(Red::Model $model, Bool :$add --> Hash()) {
 	}
 }
 
-method model-to-resource(Red::Model:D $model, Bool :$root, Bool :$relationships = $root, Bool :$attrs = $root --> CroX::Red::JsonAPI::Data::Resource) {
+method model-to-resource(Red::Model:D $model, Bool :$root, Bool :$relationships = $root, Bool :$attrs = $root, :%inc --> CroX::Red::JsonAPI::Data::Resource) {
 	with $model {
 		CroX::Red::JsonAPI::Data::Resource.new:
 			:id(.^id-values.join: "-"),
@@ -53,13 +53,35 @@ method is-applicable(Cro::HTTP::Message $message, $body --> Bool) {
     }
 }
 
+method inc-to-hash(@inc --> Hash()) {
+	my %hash;
+	my @list;
+	for @inc {
+		if .contains: "." {
+			my ($key, $value) = .split: /<.ws> "," <.ws>/, 2;
+			@list.push: $key;
+			%hash{ $key }.push: $value
+		} else {
+			%hash{ $_ } = True
+		}
+	}
+	for @list {
+		%hash{ $_ } = self.inc-to-hash: %hash{ $_ }<>
+	}
+	%hash
+}
+
 method serialize(Cro::HTTP::Message $message, $ans --> Supply) {
+	my %inc = do with request.query-value: "include" {
+		self.inc-to-hash: .split: /<.ws> "," <.ws>/;
+	}
+	say %inc;
     my Set $*included;
     my %plus;
     my $data = do if $ans ~~ Red::ResultSeq {
-        self.resultseq-to-positional: $ans, :root
+        self.resultseq-to-positional: $ans, :root, :%inc
     } else {
-        self.model-to-resource: $ans, :root
+        self.model-to-resource: $ans, :root, :%inc
     }
     my $answer = CroX::Red::JsonAPI::Data.new(:$data, :links{ :self($!base-url ~ request.target), |(%*links // {}) }, :included($*included.keys), |%plus);
     my $json = $answer.to-json.encode('utf-8');

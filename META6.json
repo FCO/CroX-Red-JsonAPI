@@ -1,23 +1,26 @@
 {
-  "auth" : "cpan:FCO",
-  "authors" : [
-    "Fernando Corr\u00eaa de Oliveira"
+  "name": "CroX::Red::JsonAPI",
+  "description": "blah blah blah",
+  "version": "0.0.1",
+  "perl": "6.d",
+  "authors": [
+    "Fernando Corrêa de Oliveira"
   ],
-  "build-depends" : [ ],
-  "depends" : [ ],
-  "description" : "blah blah blah",
-  "license" : "Artistic-2.0",
-  "name" : "CroX::Red::JsonAPI",
-  "perl" : "6.d",
-  "provides" : {
-    "CroX::Red::JsonAPI" : "lib/CroX/Red/JsonAPI.rakumod",
-    "CroX::Red::JsonAPI::Data" : "lib/CroX/Red/JsonAPI/Data.rakumod",
-    "Cro::HTTP::BodySerializer::JsonAPI" : "lib/Cro/HTTP/BodySerializer/JsonAPI.rakumod",
-    "Cro::HTTP::BodyParser::JsonAPI" : "lib/Cro/HTTP/BodyParser/JsonAPI.rakumod"
+  "auth": "cpan:FCO",
+  "depends": [
+    "Cro::HTTP",
+    "Red"
+  ],
+  "build-depends": [],
+  "test-depends": [],
+  "provides": {
+    "CroX::Red::JsonAPI": "lib/CroX/Red/JsonAPI.rakumod",
+    "CroX::Red::JsonAPI::BodyParser": "lib/CroX/Red/JsonAPI/BodyParser.pm6",
+    "CroX::Red::JsonAPI::BodySerializer": "lib/CroX/Red/JsonAPI/BodySerializer.pm6",
+    "CroX::Red::JsonAPI::Data": "lib/CroX/Red/JsonAPI/Data.rakumod"
   },
-  "resources" : [ ],
-  "source-url" : "",
-  "tags" : [ ],
-  "test-depends" : [ ],
-  "version" : "0.0.1"
+  "resources": [],
+  "license": "Artistic-2.0",
+  "tags": [],
+  "source-url": ""
 }

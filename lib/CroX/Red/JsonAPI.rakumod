@@ -1,10 +1,10 @@
 use Red::Schema;
 use CroX::Red::JsonAPI::Data;
 use Cro::HTTP::Router;
-use Cro::HTTP::BodySerializer::JsonAPI;
+use CroX::Red::JsonAPI::BodySerializer;
 
 sub json-api(Red::Schema $schema, :$base-url) is export {
-	body-serializer Cro::HTTP::BodySerializer::JsonAPI.new: :base-url($base-url.subst: /"/"$/, "");
+	body-serializer CroX::Red::JsonAPI::BodySerializer.new: :base-url($base-url.subst: /"/"$/, "");
 
 	for $schema.models.kv -> $name, $model {
 		get -> Str $resource where $name.lc {

@@ -22,7 +22,7 @@ $GLOBAL::RED-DEBUG = True;
 
 schema(Bla, Ble).create;
 
-Bla.^create: :col<blablabla>, :bles[ { :other-col<bla> } ];
+Bla.^create: :col<blablabla>, :bles[ { :other-col<bla> }, { :other-col<pla> } ];
 Bla.^create: :col<blebleble>, :bles[ { :other-col<ble> } ];
 Bla.^create: :col<bliblibli>, :bles[ { :other-col<bli> } ];
 Bla.^create: :col<blobloblo>, :bles[ { :other-col<blo> } ];
