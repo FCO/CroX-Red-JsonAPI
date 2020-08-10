@@ -17,6 +17,7 @@ class Resource does JSON::Class {
 	has Str          $.type          is required;
 	has              %.attributes    is json-skip-null;
 	has Relationship %.relationships is json-skip-null;
+	has              %.links         is json-skip-null;
 }
 
 class Pagination does JSON::Class {

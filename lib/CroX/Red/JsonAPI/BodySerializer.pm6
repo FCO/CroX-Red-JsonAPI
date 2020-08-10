@@ -10,31 +10,81 @@ has Str $.base-url = "";
 
 submethod TWEAK(|) { $!base-url .= subst: /"/"$/, "" }
 
-method resultseq-to-positional(Red::ResultSeq:D $seq, Bool :$root, :%inc --> Positional) {
-	$seq.Seq.map({ self.model-to-resource: $_, :$root }).list
+method resultseq-to-positional(
+		Red::ResultSeq:D $seq,
+		Bool :$root,
+		Bool :$attrs = $root,
+		:%inc,
+		:$self
+		--> Positional
+) {
+	$seq.Seq.map({
+		self.model-to-resource:
+				$_,
+				:$root,
+				:$attrs,
+				:%inc,
+				:self(
+					$self
+						?? "$self/{ .^id-values.join: "-" }"
+						!! "{ $!base-url }/{ .^name.lc }/{ .^id-values.join: "-" }"
+				),
+	}).list
 }
 
-method relationships(Red::Model $model, Bool :$add --> Hash()) {
+method relationships(
+		Red::Model:D $model,
+		%inc,
+		$self = "{ $!base-url }/{ $model.^name.lc }/{ $model.^id-values.join: "-" }"
+		--> Hash()
+) {
 	do for $model.^relationships.keys -> $attr {
 		my $name = $attr.name.substr: 2;
-		my @rel  = $model."$name"();
-		$*included ∪= @rel.Seq.map: { self.model-to-resource: $_, :!root, :attrs };
+		my @rel := $model."$name"() if %inc{ $name }:exists;
+		$*included ∪= self.resultseq-to-positional:
+				@rel,
+				:!root,
+				:attrs,
+				|(:inc($_) with %inc{$name}),
+		if %inc{$name}:exists;
 		$name => CroX::Red::JsonAPI::Data::Relationship.new:
-			data  => @rel.map: { self.model-to-resource: $_, :!root },
+			|(
+				data  => self.resultseq-to-positional:
+						@rel,
+						:!root,
+				if %inc{$name}:exists
+			),
 			links => {
-				:self($!base-url ~ "{ request.target }/relationships/{ $name }"),
-				:related($!base-url ~ "{ request.target }/{ $name }"),
+				:self("{ $self }/relationships/{ $name }"),
+				:related("{ $self }/{ $name }"),
 			}
 	}
 }
 
-method model-to-resource(Red::Model:D $model, Bool :$root, Bool :$relationships = $root, Bool :$attrs = $root, :%inc --> CroX::Red::JsonAPI::Data::Resource) {
+method model-to-resource(
+		Red::Model:D $model,
+		Bool :$root,
+		Bool :$attrs = $root,
+		:%inc,
+		:$self
+		--> CroX::Red::JsonAPI::Data::Resource
+) {
 	with $model {
 		CroX::Red::JsonAPI::Data::Resource.new:
 			:id(.^id-values.join: "-"),
 			:type(.^name.lc),
-			|(:attributes(.^columns>>.column.grep({ !.id && .attr.has_accessor }).map({ .attr-name => $model."{ .attr-name }"() }).Hash) if $attrs),
-			|(:relationships(self.relationships: $model) if $relationships),
+			|(
+				:attributes(
+						.^columns>>.column.grep({
+							!.id && .attr.has_accessor
+						})
+						.map({
+							.attr-name => $model."{ .attr-name }"()
+						}).Hash
+				) if $attrs
+			),
+			:relationships(self.relationships: $model, %inc),
+			:links{ :$self },
 	}
 }
 
@@ -62,7 +112,7 @@ method inc-to-hash(@inc --> Hash()) {
 			@list.push: $key;
 			%hash{ $key }.push: $value
 		} else {
-			%hash{ $_ } = True
+			%hash{ $_ } = {}
 		}
 	}
 	for @list {
@@ -72,18 +122,18 @@ method inc-to-hash(@inc --> Hash()) {
 }
 
 method serialize(Cro::HTTP::Message $message, $ans --> Supply) {
-	my %inc = do with request.query-value: "include" {
+	my $self = $!base-url ~ request.path;
+	my %inc  = do with request.query-value: "include" {
 		self.inc-to-hash: .split: /<.ws> "," <.ws>/;
 	}
-	say %inc;
     my Set $*included;
     my %plus;
     my $data = do if $ans ~~ Red::ResultSeq {
-        self.resultseq-to-positional: $ans, :root, :%inc
+        self.resultseq-to-positional: $ans, :root, :%inc, :$self
     } else {
-        self.model-to-resource: $ans, :root, :%inc
+        self.model-to-resource: $ans, :root, :%inc, :$self
     }
-    my $answer = CroX::Red::JsonAPI::Data.new(:$data, :links{ :self($!base-url ~ request.target), |(%*links // {}) }, :included($*included.keys), |%plus);
+    my $answer = CroX::Red::JsonAPI::Data.new(:$data, :links{ :$self, |(%*links // {}) }, :included($*included.keys), |%plus);
     my $json = $answer.to-json.encode('utf-8');
     self!set-content-length($message, $json.bytes);
     supply { emit $json }
