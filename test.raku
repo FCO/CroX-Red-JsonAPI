@@ -29,7 +29,7 @@ Bla.^create: :col<blobloblo>, :bles[ { :other-col<blo> } ];
 Bla.^create: :col<blublublu>, :bles[ { :other-col<blu> } ];
 
 my $application = route {
-		json-api(schema(Bla), :base-url<http://localhost:20001>);
+		json-api(schema(Bla, Ble), :base-url<http://localhost:20001>);
 		get -> {
 				content 'text/plain', "Hello world!\n";
 		}
