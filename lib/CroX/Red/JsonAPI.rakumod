@@ -19,6 +19,6 @@ multi json-api(Red::Schema $schema, :$base-url) is export {
 		content 'application/vnd.api+json', %models{$resource}.^load($id)."$to-one-name"()
 	}
 	get -> Str $resource where { %models{$_}:exists }, $id, Str $to-one-name where { %models{$resource}.^can: $_ } {
-		content 'application/vnd.api+json', %models{$_}.^load($id)."$to-one-name"()
+		content 'application/vnd.api+json', %models{$resource}.^load($id)."$to-one-name"()
 	}
 }

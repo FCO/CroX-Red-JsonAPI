@@ -12,7 +12,9 @@
     "Red"
   ],
   "build-depends": [],
-  "test-depends": [],
+  "test-depends": [
+    "App::Prove6"
+  ],
   "provides": {
     "CroX::Red::JsonAPI": "lib/CroX/Red/JsonAPI.rakumod",
     "CroX::Red::JsonAPI::BodyParser": "lib/CroX/Red/JsonAPI/BodyParser.pm6",

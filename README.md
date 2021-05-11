@@ -23,7 +23,7 @@ model Ble {
 	has UInt $!id        is serial;
 	has Str  $.other-col is column;
 	has UInt $!bla-id    is referencing(*.id, :model(Bla));
-	has Bla  $!bla       is relationship{ .bla-id };
+	has Bla  $.bla       is relationship{ .bla-id };
 }
 
 $GLOBAL::RED-DB    = database "SQLite";
