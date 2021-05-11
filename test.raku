@@ -6,15 +6,15 @@ use Red;
 
 model Ble {...}
 model Bla {
-		has $.id   is serial;
-		has $.col  is column;
-		has @.bles is relationship(*.bla-id, :model<Ble>);
+		has UInt $.id   is serial;
+		has Str  $.col  is column;
+		has Ble  @.bles is relationship{ .bla-id };
 }
 model Ble {
-		has $!id        is serial;
-		has $.other-col is column;
-		has $!bla-id    is referencing(*.id, :model<Bla>);
-		has $!bla       is relationship(*.bla-id, :model<Bla>);
+		has UInt $!id        is serial;
+		has Str  $.other-col is column;
+		has UInt $!bla-id    is referencing(*.id, :model(Bla));
+		has Bla  $!bla       is relationship{ .bla-id };
 }
 
 $GLOBAL::RED-DB    = database "SQLite";
@@ -29,7 +29,7 @@ Bla.^create: :col<blobloblo>, :bles[ { :other-col<blo> } ];
 Bla.^create: :col<blublublu>, :bles[ { :other-col<blu> } ];
 
 my $application = route {
-		json-api(schema(Bla, Ble), :base-url<http://localhost:20001>);
+		json-api(Bla, Ble, :base-url<http://localhost:20001>);
 		get -> {
 				content 'text/plain', "Hello world!\n";
 		}

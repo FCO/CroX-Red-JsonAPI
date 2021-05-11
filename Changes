@@ -2,3 +2,5 @@ Revision history for CroX-Red-JsonAPI
 
 {{$NEXT}}
     - Initial version
+    - change test code to use modern Red
+    - create README code
